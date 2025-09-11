@@ -1,6 +1,7 @@
 package com.example.tipamount
 
 import android.os.Bundle
+import android.os.Message
 import android.provider.CalendarContract.Colors
 import android.text.Layout
 import androidx.activity.ComponentActivity
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -59,12 +61,11 @@ private fun calculateTip(amount: Double, tipPercent: Double = 15.0): String{
 }
 
 @Composable
-fun EditNumberField(modifier: Modifier = Modifier) {
-    var amountInput by remember { mutableStateOf("") }
+fun EditNumberField(value: String, onValueChange: (String) -> Unit, text: String, modifier: Modifier = Modifier) {
     TextField(
-        value = amountInput,
-        onValueChange = { amountInput = it },
-        label = { Text("Bill Amount") },
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(text) },
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         modifier = modifier,
@@ -81,7 +82,10 @@ fun EditNumberField(modifier: Modifier = Modifier) {
 
 @Composable
 fun TipAmountLayout(modifier: Modifier = Modifier) {
-    val value = 15.00
+    var amountInput by remember { mutableStateOf("") }
+    val amount = amountInput.toDoubleOrNull() ?: 0.0 //converter String em Double, elvis retorna um valor quando a variavel for nula
+    val tip = calculateTip(amount)
+
     Column(
         modifier = modifier
         .fillMaxSize(),
@@ -103,6 +107,9 @@ fun TipAmountLayout(modifier: Modifier = Modifier) {
             Row(modifier = modifier
                 .padding(top = 30.dp)) {
                 EditNumberField(
+                    value = amountInput,
+                    onValueChange = { amountInput = it },
+                    text = "Bill Amount",
                     modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp))
@@ -111,9 +118,10 @@ fun TipAmountLayout(modifier: Modifier = Modifier) {
             Row(modifier = modifier
                 .padding(top = 120.dp)) {
                 Text(
-                    text = "Tip amount: $$value",
+                    text = "Tip amount: $tip",
+                    style =  MaterialTheme.typography.displaySmall,
                     modifier = Modifier.fillMaxWidth(),
-                    fontSize = 28.sp,
+                    //fontSize = 28.sp,
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold
                 )
