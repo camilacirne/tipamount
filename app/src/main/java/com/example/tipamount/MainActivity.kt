@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,11 +32,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tipamount.ui.theme.TipAmountTheme
+import java.text.NumberFormat
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,15 +48,39 @@ class MainActivity : ComponentActivity() {
         setContent {
             Surface(modifier = Modifier.fillMaxSize()) {  }
             TipAmountTheme {
-                    TipAmount()
+                    TipAmountLayout()
             }
         }
     }
 }
+private fun calculateTip(amount: Double, tipPercent: Double = 15.0): String{
+    val tip = tipPercent / 100 * amount
+    return NumberFormat.getCurrencyInstance().format(tip)
+}
 
 @Composable
-fun TipAmount(modifier: Modifier = Modifier) {
-    var billAmount by remember { mutableStateOf("") }
+fun EditNumberField(modifier: Modifier = Modifier) {
+    var amountInput by remember { mutableStateOf("") }
+    TextField(
+        value = amountInput,
+        onValueChange = { amountInput = it },
+        label = { Text("Bill Amount") },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        modifier = modifier,
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = Color.Red,
+            unfocusedTextColor = Color.Blue,
+            cursorColor = Color.Green,
+            focusedIndicatorColor = Color.Magenta,
+            unfocusedIndicatorColor = Color.Cyan
+        )
+    )
+}
+
+
+@Composable
+fun TipAmountLayout(modifier: Modifier = Modifier) {
     val value = 15.00
     Column(
         modifier = modifier
@@ -74,22 +102,10 @@ fun TipAmount(modifier: Modifier = Modifier) {
             Spacer(Modifier.size(32.dp))
             Row(modifier = modifier
                 .padding(top = 30.dp)) {
-                TextField(
-                    value = billAmount,
-                    onValueChange = { newBillAmount -> billAmount = newBillAmount },
-                    label = { Text("Bill Amount") },
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = Color.Red,
-                        unfocusedTextColor = Color.Blue,
-                        cursorColor = Color.Green,
-                        focusedIndicatorColor = Color.Magenta,
-                        unfocusedIndicatorColor = Color.Cyan
-                    ),
+                EditNumberField(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-
-                )
+                    .fillMaxWidth()
+                    .padding(16.dp))
             }
             Spacer(Modifier.size(32.dp))
             Row(modifier = modifier
@@ -113,6 +129,6 @@ fun TipAmount(modifier: Modifier = Modifier) {
 @Composable
 fun TipAmountPreview() {
     TipAmountTheme {
-       TipAmount()
+       TipAmountLayout()
     }
 }
