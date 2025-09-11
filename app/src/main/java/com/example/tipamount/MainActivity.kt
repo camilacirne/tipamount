@@ -8,6 +8,8 @@ import androidx.compose.material3.Switch
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.DrawableRes
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +21,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -35,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -42,6 +47,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.material3.Icon
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tipamount.ui.theme.TipAmountTheme
@@ -52,14 +58,18 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Surface(modifier = Modifier.fillMaxSize()) {  }
             TipAmountTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize()
+                ) {
                     TipAmountLayout()
+                }
             }
         }
     }
 }
-private fun calculateTip(amount: Double, tipPercent: Double = 15.0, roundUp: Boolean): String{
+@VisibleForTesting
+internal fun calculateTip(amount: Double, tipPercent: Double = 15.0, roundUp: Boolean): String{
     var tip = tipPercent / 100 * amount
     if (roundUp) {
         tip = kotlin.math.ceil(tip)
@@ -85,6 +95,7 @@ fun EditNumberField(value: String, onValueChange: (String) -> Unit, text: String
         )
     )
 }
+
 
 @Composable
 fun RoundTheTipRow(roundUp: Boolean, onRoundUpChanged: (Boolean) -> Unit) {
@@ -122,8 +133,10 @@ fun TipAmountLayout(modifier: Modifier = Modifier) {
 
     Column(
         modifier = modifier
-        .fillMaxSize(),
-        verticalArrangement = Arrangement.Center
+        .fillMaxSize()
+        .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
             modifier = modifier
@@ -172,7 +185,7 @@ fun TipAmountLayout(modifier: Modifier = Modifier) {
             Row(modifier = modifier
                 .padding(top = 260.dp)) {
                 Text(
-                    text = "Tip amount: $tip",
+                    text = "Tip Amount: $tip",
                     style =  MaterialTheme.typography.displaySmall,
                     modifier = Modifier.fillMaxWidth(),
                     //fontSize = 28.sp,
