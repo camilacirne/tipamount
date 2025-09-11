@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.os.Message
 import android.provider.CalendarContract.Colors
 import android.text.Layout
+import androidx.compose.material3.Switch
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -33,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -56,8 +59,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-private fun calculateTip(amount: Double, tipPercent: Double = 15.0): String{
-    val tip = tipPercent / 100 * amount
+private fun calculateTip(amount: Double, tipPercent: Double = 15.0, roundUp: Boolean): String{
+    var tip = tipPercent / 100 * amount
+    if (roundUp) {
+        tip = kotlin.math.ceil(tip)
+    }
     return NumberFormat.getCurrencyInstance().format(tip)
 }
 
@@ -80,6 +86,29 @@ fun EditNumberField(value: String, onValueChange: (String) -> Unit, text: String
     )
 }
 
+@Composable
+fun RoundTheTipRow(roundUp: Boolean, onRoundUpChanged: (Boolean) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .size(48.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = stringResource(R.string.round_up_tip),
+            modifier = Modifier
+                .padding(start=16.dp))
+
+        Switch(
+            modifier = Modifier
+                .padding(start = 205.dp)
+                .wrapContentWidth(Alignment.End),
+            checked = roundUp,
+            onCheckedChange = onRoundUpChanged
+        )
+
+    }
+}
+
 
 @Composable
 fun TipAmountLayout(modifier: Modifier = Modifier) {
@@ -87,7 +116,8 @@ fun TipAmountLayout(modifier: Modifier = Modifier) {
     val amount = amountInput.toDoubleOrNull() ?: 0.0 //converter String em Double, elvis retorna um valor quando a variavel for nula
     var tipInput by remember { mutableStateOf("") }
     val tipPercent = tipInput.toDoubleOrNull() ?: 0.0
-    val tip = calculateTip(amount, tipPercent )
+    var roundUp by remember { mutableStateOf(false) }
+    val tip = calculateTip(amount, tipPercent, roundUp)
 
 
     Column(
@@ -134,6 +164,13 @@ fun TipAmountLayout(modifier: Modifier = Modifier) {
             Spacer(Modifier.size(32.dp))
             Row(modifier = modifier
                 .padding(top = 180.dp)) {
+                RoundTheTipRow(
+                    roundUp = roundUp,
+                    onRoundUpChanged = { roundUp = it }
+                )
+            }
+            Row(modifier = modifier
+                .padding(top = 260.dp)) {
                 Text(
                     text = "Tip amount: $tip",
                     style =  MaterialTheme.typography.displaySmall,
